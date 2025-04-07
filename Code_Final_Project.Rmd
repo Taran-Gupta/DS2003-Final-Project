@@ -1,0 +1,17 @@
+---
+title: "Code_Final_Project"
+output: html_document
+---
+
+```{r}
+# import necessary libraries
+library(tidyverse)
+library(shiny)
+library(plotly)
+
+# import base dataset
+ed = read.csv('global_education_data.csv')
+
+head(ed)
+```
+
