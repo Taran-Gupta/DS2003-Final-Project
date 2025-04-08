@@ -29,7 +29,7 @@ females <- df[, 38:ncol(df)] #gets only the columns for females
 females[3,10] <- "Science and Engineering Related Fields"
 females[3,11] <- 'Business'
 females[3,12] <- 'Education'
-females[3,1] <- 'Female'
+females[3,1] <- 'Total'
 
 #combines the females with the states column
 females <- cbind(df[,1], females)
@@ -52,7 +52,7 @@ males <- df[,20:37]
 males[3,10] <- "Science and Engineering Related Fields"
 males[3,11] <- 'Business'
 males[3,12] <- 'Education'
-males[3,1] <- 'Male'
+males[3,1] <- 'Total'
 males <- cbind(df[,1], males)
 males[3,1] <- 'States'
 names(males) <- males[3,]
@@ -63,13 +63,17 @@ for (each in 2:ncol(males)) {
   males[,each] <- parse_number(males[,each])
 }
 
-
+#this one had a lot of columns that were named the wrong thing, so I had to 
+#check with the csv and overwrite them
 all_gender <- df[,1:19]
-all_gender[2,10] <- "Science and Engineering Related Fields"
-all_gender[2,11] <- 'Business'
-all_gender[2,12] <- 'Education'
+all_gender[2,9] <- "Engineering"
+all_gender[2,10] <- "Multidisciplinary Studies"
+all_gender[2,11] <- "Science and Engineering Related Fields"
+all_gender[2,12] <- 'Business'
+all_gender[2,13] <- 'Education'
 all_gender[2,1] <- 'States'
-all_gender[2,2] <- 'All'
+all_gender[2,2] <- 'Total'
+all_gender[2,18] <- 'Communications'
 names(all_gender) <- all_gender[2,]
 all_gender <- all_gender[5:nrow(all_gender),c(-3,-14)]
 all_gender <- all_gender[seq(1, nrow(df), by = 3),]
@@ -80,9 +84,19 @@ for (each in 2:ncol(all_gender)) {
 
 #if you want a full df
 
+#adds a row for the gender identifier
+females['Gender'] <- rep('female', nrow(females))
+males['Gender'] <- rep('male', nrow(females))
+all_gender['Gender'] <- rep('all', nrow(females))
+
+#binds the rows
+full_df <- rbind(females, males, all_gender)
+na.omit(full_df) #gets rid of the two rows of nas
+
+
+#could also merge on state or cbind
 merged_df <- merge(females, males, by = 'States') #and you can merge more
 
-#idk if you really want that tho lol
 
 
 ```
