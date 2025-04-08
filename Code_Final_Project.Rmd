@@ -9,9 +9,12 @@ library(tidyverse)
 library(shiny)
 library(plotly)
 
-# import base dataset
-ed = read.csv('global_education_data.csv')
+# import base data set
+earnings = read.csv('Median Earnings.csv')
 
-head(ed)
+earnings
 ```
-
+Things to clean:
+1. Change Column Names
+2. Typecast numbers to int
+3. Decide if margin of errors want to be kept (might need to make it another column if so) + condense dataframe
