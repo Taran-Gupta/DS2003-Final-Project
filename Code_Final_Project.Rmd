@@ -18,3 +18,72 @@ Things to clean:
 1. Change Column Names
 2. Typecast numbers to int
 3. Decide if margin of errors want to be kept (might need to make it another column if so) + condense dataframe
+
+```{r}
+df <- earnings %>% 
+  mutate(X = lag(X, n = 1, default = NA))
+
+females <- df[, 38:ncol(df)] #gets only the columns for females
+
+#adds some of the column names so that we can use the names function
+females[3,10] <- "Science and Engineering Related Fields"
+females[3,11] <- 'Business'
+females[3,12] <- 'Education'
+females[3,1] <- 'Female'
+
+#combines the females with the states column
+females <- cbind(df[,1], females)
+females[3,1] <- 'States'
+names(females) <- females[3,]
+
+#gets only the rows and columns wihtout nas
+females <- females[5:nrow(females),c(-3,-14)]
+
+#you can change the by to get all of the errors instead
+females <- females[seq(1, nrow(df), by = 3),] 
+
+#parses the numbers for all of the columns
+for (each in 2:ncol(females)) {
+  females[,each] <- parse_number(females[,each])
+}
+
+#does the same thing but for males and all genders
+males <- df[,20:37]
+males[3,10] <- "Science and Engineering Related Fields"
+males[3,11] <- 'Business'
+males[3,12] <- 'Education'
+males[3,1] <- 'Male'
+males <- cbind(df[,1], males)
+males[3,1] <- 'States'
+names(males) <- males[3,]
+males <- males[5:nrow(males),c(-3,-14)]
+males <- males[seq(1, nrow(df), by = 3),]
+
+for (each in 2:ncol(males)) {
+  males[,each] <- parse_number(males[,each])
+}
+
+
+all_gender <- df[,1:19]
+all_gender[2,10] <- "Science and Engineering Related Fields"
+all_gender[2,11] <- 'Business'
+all_gender[2,12] <- 'Education'
+all_gender[2,1] <- 'States'
+all_gender[2,2] <- 'All'
+names(all_gender) <- all_gender[2,]
+all_gender <- all_gender[5:nrow(all_gender),c(-3,-14)]
+all_gender <- all_gender[seq(1, nrow(df), by = 3),]
+
+for (each in 2:ncol(all_gender)) {
+  all_gender[,each] <- parse_number(all_gender[,each])
+}
+
+#if you want a full df
+
+merged_df <- merge(females, males, by = 'States') #and you can merge more
+
+#idk if you really want that tho lol
+
+
+```
+
