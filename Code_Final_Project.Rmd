@@ -2,7 +2,7 @@
 title: "Code_Final_Project"
 output: html_document
 ---
-
+# Data Import
 ```{r}
 # import necessary libraries
 library(tidyverse)
@@ -15,6 +15,9 @@ earnings = read.csv('Median Earnings.csv')
 
 earnings
 ```
+
+# Data Cleaning
+
 Things to clean:
 1. Change Column Names
 2. Typecast numbers to int
@@ -126,15 +129,26 @@ rownames(full_df) = NULL
 rownames(merged_df) = NULL
 ```
 
-```{r}
-# Answering Question 1: What is the Gender Gap By Major Across The Country?
+# Question 1: What is the Gender Gap By Major Across The Country?
 
-# diverging bar chart: https://r-charts.com/part-whole/diverging-bar-chart-ggplot2/
-# Up is increase male, down is increase female. Likely won't be much down but that's the point
-# show equal y-axis on both sides to exacerbate the difference
-# group my major. Each bar represents a different major. Leave out Multidisciplinary studies due to NAs
-# Allow grouped bars (dodge) to show up to 3(?) different states for comparison
-# color by state?
-# scale_fill_gradient by amount?
+diverging bar chart: https://r-charts.com/part-whole/diverging-bar-chart-ggplot2/
+Up is increase male, down is increase female. Likely won't be much down but that's the point
+show equal y-axis on both sides to exacerbate the difference
+group my major. Each bar represents a different major. Leave out Multidisciplinary studies due to NAs
+Allow grouped bars (dodge) to show up to 3(?) different states for comparison
+color by state?
+scale_fill_gradient by amount?
+
+```{r}
+# Creating Dataframe that shows income difference by state and by major, as well as averaged overall
+
+#gap = 
 ```
 
+# Question 3:
+
+# Shiny UI
+
+# Shiny Server
+
+# Shiny App
