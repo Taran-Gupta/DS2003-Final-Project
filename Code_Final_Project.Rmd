@@ -158,9 +158,33 @@ color by state?
 scale_fill_gradient by amount?
 
 ```{r}
-# Creating Dataframe that shows income difference by state and by major, as well as averaged overall
+# Creating Data frame that shows income difference by state and by major, as well as averaged overall
+# done by percent difference
+gap = add_column(males[1],(males[3:16] - females[3:16])/males[3:16])
 
-#gap = 
+# add row that is mean of each column aka national average by major
+national_mean = colMeans(gap[2:15])
+national = data.frame(State = "National", t(national_mean))
+colnames(national) = c("States",
+                        "Computers, Mathematics, and Statistics",              
+                        "Biological, Agricultural, and Environmental Sciences",
+                        "Physical and Related Sciences",                       
+                        "Psychology",                                          
+                        "Social Sciences",                                     
+                        "Engineering",                                         
+                        "Science and Engineering Related Fields",              
+                        "Business",                                            
+                        "Education",                                           
+                        "Literature and Languages",                            
+                        "Liberal Arts and History",                            
+                        "Visual and Performing Arts",                          
+                        "Communications",                                      
+                        "Other")
+gap = add_row(gap, !!!national[1, ])
+
+# remove intermediate steps
+rm(national_mean)
+rm(national)
 ```
 
 # Question 3:
