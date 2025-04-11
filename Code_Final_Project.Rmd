@@ -111,12 +111,26 @@ rm(earnings)
 rm(df)
 rm(each)
 
+#excludes puerto rice and district of columbia since wage data is not present for it
+all_gender = all_gender[!(all_gender$States %in% c('Puerto Rico', 'District of Columbia')),]
+females = females[!(females$States %in% c('Puerto Rico', 'District of Columbia')),]
+males = males[!(males$States %in% c('Puerto Rico', 'District of Columbia')),]
+merged_df = merged_df[!(merged_df$States %in% c('Puerto Rico', 'District of Columbia')),]
+full_df = full_df[!(full_df$States %in% c('Puerto Rico', 'District of Columbia')),]
+
 # removes NA rows leftover while keeping in actual NA data
 all_gender = all_gender[!is.na(all_gender$States),]
 females = females[!is.na(females$States),]
 males = males[!is.na(males$States),]
 merged_df = merged_df[!is.na(merged_df$States),]
 full_df = full_df[!is.na(full_df$States),]
+
+# removes Multidisciplinary studies as a comparison option due to NAs. Okay bc vague category anyways
+all_gender = subset(all_gender, select = -`Multidisciplinary Studies`)
+females = subset(females, select = -`Multidisciplinary Studies`)
+males = subset(males, select = -`Multidisciplinary Studies`)
+merged_df = subset(merged_df, select = -c(`Multidisciplinary Studies.x`,`Multidisciplinary Studies.y`))
+full_df = subset(full_df, select = -`Multidisciplinary Studies`)
 
 # sorts all dataframes by state alphabetically
 all_gender = all_gender[order(all_gender$States),]
@@ -160,12 +174,8 @@ income<-website%>%html_nodes(".align-middle:nth-child(3)")%>% html_text()
 livable_income <- parse_number(income) #parses to numeric
 States <- website%>%html_nodes(".px-2+ .align-middle")%>% html_text()
 
-
 #combines states and livable wages into one df
 livable_wg <- data.frame(States,livable_income)
-
-#excludes puerto rice and district of columbia 
-full_df = full_df[!(full_df$States %in% c('Puerto Rico', 'District of Columbia')),]
 
 #merges the states and the data frame that we created with the majors
 merged_livable <- merge(full_df, livable_wg, by = 'States')
