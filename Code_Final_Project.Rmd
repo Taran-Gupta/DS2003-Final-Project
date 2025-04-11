@@ -2,21 +2,28 @@
 title: "Code_Final_Project"
 output: html_document
 ---
-
+# Data Import
 ```{r}
 # import necessary libraries
 library(tidyverse)
 library(shiny)
 library(plotly)
+<<<<<<< HEAD
 library(rvest)
 library(shinythemes)
 library(ggplot2)
+=======
+library(ggnewscale) # allows for more complex plots
+>>>>>>> 38a375338403d6400fdb1cc0038ee764c29f1291
 
 # import base data set
 earnings = read.csv('Median Earnings.csv')
 
 earnings
 ```
+
+# Data Cleaning
+
 Things to clean:
 1. Change Column Names
 2. Typecast numbers to int
@@ -100,11 +107,36 @@ na.omit(full_df) #gets rid of the two rows of nas
 
 #could also merge on state or cbind
 merged_df <- merge(females, males, by = 'States') #and you can merge more
+```
+```{r}
+# removes unneeded data frames and variables to free up computer memory
+rm(earnings)
+rm(df)
+rm(each)
 
+# removes NA rows leftover while keeping in actual NA data
+all_gender = all_gender[!is.na(all_gender$States),]
+females = females[!is.na(females$States),]
+males = males[!is.na(males$States),]
+merged_df = merged_df[!is.na(merged_df$States),]
+full_df = full_df[!is.na(full_df$States),]
 
+# sorts all dataframes by state alphabetically
+all_gender = all_gender[order(all_gender$States),]
+females = females[order(females$States),]
+males = males[order(males$States),]
+full_df = full_df[order(full_df$States),]
+merged_df = merged_df[order(merged_df$States),]
 
+# reindexes every dataframe. By setting row names to NULL, it reindexes numerically
+rownames(all_gender) = NULL
+rownames(females) = NULL
+rownames(males) = NULL
+rownames(full_df) = NULL
+rownames(merged_df) = NULL
 ```
 
+<<<<<<< HEAD
 ```{r}
 #Adding Livable Wages
 
@@ -240,3 +272,28 @@ server <- function(input, output, session) {
 shinyApp(ui, server)
 ```
 
+=======
+# Question 1: What is the Gender Gap By Major Across The Country?
+
+diverging bar chart: https://r-charts.com/part-whole/diverging-bar-chart-ggplot2/
+Up is increase male, down is increase female. Likely won't be much down but that's the point
+show equal y-axis on both sides to exacerbate the difference
+group my major. Each bar represents a different major. Leave out Multidisciplinary studies due to NAs
+Allow grouped bars (dodge) to show up to 3(?) different states for comparison
+color by state?
+scale_fill_gradient by amount?
+
+```{r}
+# Creating Dataframe that shows income difference by state and by major, as well as averaged overall
+
+#gap = 
+```
+
+# Question 3:
+
+# Shiny UI
+
+# Shiny Server
+
+# Shiny App
+>>>>>>> 38a375338403d6400fdb1cc0038ee764c29f1291
