@@ -183,7 +183,7 @@ merged_livable <- merge(full_df, livable_wg, by = 'States')
 
 ```{r}
 #subset with only the median incomes
-subset_data <- merged_livable[3:17]
+subset_data <- merged_livable[3:16]
 
 #subtracts the median incomes by the livable wages
 all_majors <- subset_data - livable_income
@@ -200,7 +200,6 @@ long_data <- pivot_longer(all_majors_state,
 "Psychology",                                          
 "Social Sciences",                                     
 "Engineering",                                         
-"Multidisciplinary Studies",                           
 "Science and Engineering Related Fields",              
 "Business",                                            
 "Education",                                           
