@@ -8,6 +8,9 @@ output: html_document
 library(tidyverse)
 library(shiny)
 library(plotly)
+library(rvest)
+library(shinythemes)
+library(ggplot2)
 
 # import base data set
 earnings = read.csv('Median Earnings.csv')
@@ -78,6 +81,7 @@ names(all_gender) <- all_gender[2,]
 all_gender <- all_gender[5:nrow(all_gender),c(-3,-14)]
 all_gender <- all_gender[seq(1, nrow(df), by = 3),]
 
+#parses all of the median incomes into numeric
 for (each in 2:ncol(all_gender)) {
   all_gender[,each] <- parse_number(all_gender[,each])
 }
@@ -85,9 +89,9 @@ for (each in 2:ncol(all_gender)) {
 #if you want a full df
 
 #adds a row for the gender identifier
-females['Gender'] <- rep('female', nrow(females))
-males['Gender'] <- rep('male', nrow(females))
-all_gender['Gender'] <- rep('all', nrow(females))
+females['Gender'] <- rep('Female', nrow(females))
+males['Gender'] <- rep('Male', nrow(females))
+all_gender['Gender'] <- rep('Everyone', nrow(females))
 
 #binds the rows
 full_df <- rbind(females, males, all_gender)
@@ -99,5 +103,140 @@ merged_df <- merge(females, males, by = 'States') #and you can merge more
 
 
 
+```
+
+```{r}
+#Adding Livable Wages
+
+website <- read_html("https://worldpopulationreview.com/state-rankings/livable-wage-by-state")
+
+#reads in the livable wages and states column from the websome
+income<-website%>%html_nodes(".align-middle:nth-child(3)")%>% html_text()
+livable_income <- parse_number(income) #parses to numeric
+States <- website%>%html_nodes(".px-2+ .align-middle")%>% html_text()
+
+
+#combines states and livable wages into one df
+livable_wg <- data.frame(States,livable_income)
+
+#excludes puerto rice and district of columbia 
+full_df = full_df[!(full_df$States %in% c('Puerto Rico', 'Disctrict of Columbia')),]
+
+#merges the states and the data frame that we created with the majors
+merged_livable <- merge(full_df, livable_wg, by = 'States')
+```
+
+```{r}
+#subset with only the median incomes
+subset_data <- merged_livable[3:17]
+
+#subtracts the median incomes by the livable wages
+all_majors <- subset_data - livable_income
+
+#binds gender and states back onto the df with the majors income
+all_majors_state <- cbind("States" = merged_livable$States,"Gender" = 
+                            merged_livable$Gender, all_majors)
+
+#pivots the data so that it can be used to create a visualization
+long_data <- pivot_longer(all_majors_state, 
+                          cols = c("Computers, Mathematics, and Statistics",              
+"Biological, Agricultural, and Environmental Sciences",
+"Physical and Related Sciences",                       
+"Psychology",                                          
+"Social Sciences",                                     
+"Engineering",                                         
+"Multidisciplinary Studies",                           
+"Science and Engineering Related Fields",              
+"Business",                                            
+"Education",                                           
+"Literature and Languages",                            
+"Liberal Arts and History",                            
+"Visual and Performing Arts",                          
+"Communications",                                      
+"Other" ), 
+                          names_to = "Major", 
+                          values_to = "Income_Difference")
+
+```
+
+
+```{r}
+
+ui <- fluidPage(
+  #creates a theme
+    theme = shinytheme("superhero"),
+    #page title
+    navbarPage("Median Income Examinations by Major and Gender",
+        #tab title
+        tabPanel("Median Income Compared to Livable Wage by State",
+            fluidRow( 
+                sidebarPanel(
+                    radioButtons(
+                        inputId = "gender", #access the widget by "gender"
+                        label = "Filter by Gender: ", #title of widget
+                        choices = c("Female", "Male", "Everyone"), #choices
+                        selected = "Everyone" #Everyone auto selected
+                    ),
+                    checkboxGroupInput(
+                        "majors", #access widget by "majors"
+                        label = "Filter by Major", #title of widget
+                        choices = unique(long_data$Major), #choices
+                        selected = unique(long_data$Major) #selects all majors auto
+                    ),
+                    selectInput(
+                        inputId = "state", #access widget by "state"
+                        label = "Filter by State: ", #title of widget
+                        choices = unique(long_data$States), #choices
+                        selected = 'Alabama' #Selects Alabama auto
+                    )
+                ),
+                mainPanel(
+                  #tells shiny to output the plot bargraph
+                  plotOutput("bargraph", width = "100%", height = "500px")
+                )
+            )
+        ),
+        tabPanel("Drug Satisfaction & Effectiveness Ratings")
+    )
+)
+
+server <- function(input, output, session) {
+  
+    #reactive data based on user inputs
+    cleaned_data <- reactive({
+        #requires gender, majors, and state to exist
+        req(input$gender, input$majors, input$state)
+      
+        #filters the data according to the inputs
+        long_data %>%
+            filter(Major %in% input$majors, 
+                   States == input$state, 
+                   Gender == input$gender)
+    })
+
+    #render the plot based on filtered data
+    output$bargraph <- renderPlot({
+        req(cleaned_data())  #ensure data is available
+        
+        #creates a graph using cleaned_data() and defines x and y axes
+        ggplot(cleaned_data(), aes(x = reorder(Major, Income_Difference), y = Income_Difference)) +
+            
+            #creates a bar graph that changes the fill color according to the number
+            geom_bar(stat = "identity", show.legend = FALSE, color = "white", 
+                     fill = ifelse(cleaned_data()$Income_Difference < 0, "darkred", "darkgreen")) +
+            #changes x and y axes and the title
+            xlab("Majors") +
+            ylab("Difference Between Major's Median Salary and Livable Wage") +
+            labs(title = "How Much More/Less Each Major is Recieving than Livable Wage") +
+            #changes the scale to match the min and max income differences
+            scale_y_continuous(breaks = seq(min(cleaned_data()$Income_Difference), max(cleaned_data()$Income_Difference), by = 10000),
+                               limits = c(min(cleaned_data()$Income_Difference) - 1000, max(cleaned_data()$Income_Difference) + 1000)) +
+            coord_flip() +             #flips it to have sidways bar plot
+            theme_minimal() + #adds a theme
+            theme(plot.title = element_text(hjust = 0.5)) #puts title in the middle
+    })
+}
+
+shinyApp(ui, server)
 ```
 
