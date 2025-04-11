@@ -8,13 +8,10 @@ output: html_document
 library(tidyverse)
 library(shiny)
 library(plotly)
-<<<<<<< HEAD
 library(rvest)
 library(shinythemes)
 library(ggplot2)
-=======
 library(ggnewscale) # allows for more complex plots
->>>>>>> 38a375338403d6400fdb1cc0038ee764c29f1291
 
 # import base data set
 earnings = read.csv('Median Earnings.csv')
@@ -136,7 +133,23 @@ rownames(full_df) = NULL
 rownames(merged_df) = NULL
 ```
 
-<<<<<<< HEAD
+# Question 1: What is the Gender Gap By Major Across The Country?
+
+diverging bar chart: https://r-charts.com/part-whole/diverging-bar-chart-ggplot2/
+Up is increase male, down is increase female. Likely won't be much down but that's the point
+show equal y-axis on both sides to exacerbate the difference
+group my major. Each bar represents a different major. Leave out Multidisciplinary studies due to NAs
+Allow grouped bars (dodge) to show up to 3(?) different states for comparison
+color by state?
+scale_fill_gradient by amount?
+
+```{r}
+# Creating Dataframe that shows income difference by state and by major, as well as averaged overall
+
+#gap = 
+```
+
+# Question 3:
 ```{r}
 #Adding Livable Wages
 
@@ -152,7 +165,7 @@ States <- website%>%html_nodes(".px-2+ .align-middle")%>% html_text()
 livable_wg <- data.frame(States,livable_income)
 
 #excludes puerto rice and district of columbia 
-full_df = full_df[!(full_df$States %in% c('Puerto Rico', 'Disctrict of Columbia')),]
+full_df = full_df[!(full_df$States %in% c('Puerto Rico', 'District of Columbia')),]
 
 #merges the states and the data frame that we created with the majors
 merged_livable <- merge(full_df, livable_wg, by = 'States')
@@ -191,7 +204,7 @@ long_data <- pivot_longer(all_majors_state,
 
 ```
 
-
+# Shiny UI
 ```{r}
 
 ui <- fluidPage(
@@ -231,7 +244,10 @@ ui <- fluidPage(
         tabPanel("Drug Satisfaction & Effectiveness Ratings")
     )
 )
+```
 
+# Shiny Server
+```{r}
 server <- function(input, output, session) {
   
     #reactive data based on user inputs
@@ -268,32 +284,9 @@ server <- function(input, output, session) {
             theme(plot.title = element_text(hjust = 0.5)) #puts title in the middle
     })
 }
-
-shinyApp(ui, server)
 ```
-
-=======
-# Question 1: What is the Gender Gap By Major Across The Country?
-
-diverging bar chart: https://r-charts.com/part-whole/diverging-bar-chart-ggplot2/
-Up is increase male, down is increase female. Likely won't be much down but that's the point
-show equal y-axis on both sides to exacerbate the difference
-group my major. Each bar represents a different major. Leave out Multidisciplinary studies due to NAs
-Allow grouped bars (dodge) to show up to 3(?) different states for comparison
-color by state?
-scale_fill_gradient by amount?
-
-```{r}
-# Creating Dataframe that shows income difference by state and by major, as well as averaged overall
-
-#gap = 
-```
-
-# Question 3:
-
-# Shiny UI
-
-# Shiny Server
 
 # Shiny App
->>>>>>> 38a375338403d6400fdb1cc0038ee764c29f1291
+```{r}
+shinyApp(ui, server)
+```
