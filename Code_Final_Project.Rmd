@@ -212,6 +212,9 @@ long_data <- pivot_longer(all_majors_state,
                           names_to = "Major", 
                           values_to = "Income_Difference")
 
+rm(income,livable_income, States, livable_wg, merged_livable,
+   subset_data, all_majors, all_majors_state)
+
 ```
 
 # Shiny UI
@@ -287,8 +290,9 @@ server <- function(input, output, session) {
             ylab("Difference Between Major's Median Salary and Livable Wage") +
             labs(title = "How Much More/Less Each Major is Recieving than Livable Wage") +
             #changes the scale to match the min and max income differences
+            #makes the max/min 0 if it doesn't include it
             scale_y_continuous(breaks = seq(min(cleaned_data()$Income_Difference), max(cleaned_data()$Income_Difference), by = 10000),
-                               limits = c(min(cleaned_data()$Income_Difference) - 1000, max(cleaned_data()$Income_Difference) + 1000)) +
+                               limits = c(if_else(min(cleaned_data()$Income_Difference) <0, min(cleaned_data()$Income_Difference)-1000, 0), if_else(max(cleaned_data()$Income_Difference) >0, max(cleaned_data()$Income_Difference)+1000, 0))) +
             coord_flip() +             #flips it to have sidways bar plot
             theme_minimal() + #adds a theme
             theme(plot.title = element_text(hjust = 0.5)) #puts title in the middle
