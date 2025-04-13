@@ -11,7 +11,7 @@ library(plotly)
 library(rvest)
 library(shinythemes)
 library(ggplot2)
-library(ggnewscale) # allows for more complex plots
+library(scales)
 
 # import base data set
 earnings = read.csv('Median Earnings.csv')
@@ -27,83 +27,83 @@ Things to clean:
 3. Decide if margin of errors want to be kept (might need to make it another column if so) + condense dataframe
 
 ```{r}
-df <- earnings %>% 
+df = earnings %>% 
   mutate(X = lag(X, n = 1, default = NA))
 
-females <- df[, 38:ncol(df)] #gets only the columns for females
+females = df[, 38:ncol(df)] #gets only the columns for females
 
 #adds some of the column names so that we can use the names function
-females[3,10] <- "Science and Engineering Related Fields"
-females[3,11] <- 'Business'
-females[3,12] <- 'Education'
-females[3,1] <- 'Total'
+females[3,10] = "Science and Engineering Related Fields"
+females[3,11] = 'Business'
+females[3,12] = 'Education'
+females[3,1] = 'Total'
 
 #combines the females with the states column
-females <- cbind(df[,1], females)
-females[3,1] <- 'States'
-names(females) <- females[3,]
+females = cbind(df[,1], females)
+females[3,1] = 'States'
+names(females) = females[3,]
 
 #gets only the rows and columns wihtout nas
-females <- females[5:nrow(females),c(-3,-14)]
+females = females[5:nrow(females),c(-3,-14)]
 
 #you can change the by to get all of the errors instead
-females <- females[seq(1, nrow(df), by = 3),] 
+females = females[seq(1, nrow(df), by = 3),] 
 
 #parses the numbers for all of the columns
 for (each in 2:ncol(females)) {
-  females[,each] <- parse_number(females[,each])
+  females[,each] = parse_number(females[,each])
 }
 
 #does the same thing but for males and all genders
-males <- df[,20:37]
-males[3,10] <- "Science and Engineering Related Fields"
-males[3,11] <- 'Business'
-males[3,12] <- 'Education'
-males[3,1] <- 'Total'
-males <- cbind(df[,1], males)
-males[3,1] <- 'States'
-names(males) <- males[3,]
-males <- males[5:nrow(males),c(-3,-14)]
-males <- males[seq(1, nrow(df), by = 3),]
+males = df[,20:37]
+males[3,10] = "Science and Engineering Related Fields"
+males[3,11] = 'Business'
+males[3,12] = 'Education'
+males[3,1] = 'Total'
+males = cbind(df[,1], males)
+males[3,1] = 'States'
+names(males) = males[3,]
+males = males[5:nrow(males),c(-3,-14)]
+males = males[seq(1, nrow(df), by = 3),]
 
 for (each in 2:ncol(males)) {
-  males[,each] <- parse_number(males[,each])
+  males[,each] = parse_number(males[,each])
 }
 
 #this one had a lot of columns that were named the wrong thing, so I had to 
 #check with the csv and overwrite them
-all_gender <- df[,1:19]
-all_gender[2,9] <- "Engineering"
-all_gender[2,10] <- "Multidisciplinary Studies"
-all_gender[2,11] <- "Science and Engineering Related Fields"
-all_gender[2,12] <- 'Business'
-all_gender[2,13] <- 'Education'
-all_gender[2,1] <- 'States'
-all_gender[2,2] <- 'Total'
-all_gender[2,18] <- 'Communications'
-names(all_gender) <- all_gender[2,]
-all_gender <- all_gender[5:nrow(all_gender),c(-3,-14)]
-all_gender <- all_gender[seq(1, nrow(df), by = 3),]
+all_gender = df[,1:19]
+all_gender[2,9] = "Engineering"
+all_gender[2,10] = "Multidisciplinary Studies"
+all_gender[2,11] = "Science and Engineering Related Fields"
+all_gender[2,12] = 'Business'
+all_gender[2,13] = 'Education'
+all_gender[2,1] = 'States'
+all_gender[2,2] = 'Total'
+all_gender[2,18] = 'Communications'
+names(all_gender) = all_gender[2,]
+all_gender = all_gender[5:nrow(all_gender),c(-3,-14)]
+all_gender = all_gender[seq(1, nrow(df), by = 3),]
 
 #parses all of the median incomes into numeric
 for (each in 2:ncol(all_gender)) {
-  all_gender[,each] <- parse_number(all_gender[,each])
+  all_gender[,each] = parse_number(all_gender[,each])
 }
 
 #if you want a full df
 
 #adds a row for the gender identifier
-females['Gender'] <- rep('Female', nrow(females))
-males['Gender'] <- rep('Male', nrow(females))
-all_gender['Gender'] <- rep('Everyone', nrow(females))
+females['Gender'] = rep('Female', nrow(females))
+males['Gender'] = rep('Male', nrow(females))
+all_gender['Gender'] = rep('Everyone', nrow(females))
 
 #binds the rows
-full_df <- rbind(females, males, all_gender)
+full_df = rbind(females, males, all_gender)
 na.omit(full_df) #gets rid of the two rows of nas
 
 
 #could also merge on state or cbind
-merged_df <- merge(females, males, by = 'States') #and you can merge more
+merged_df = merge(females, males, by = 'States') #and you can merge more
 ```
 ```{r}
 # removes unneeded data frames and variables to free up computer memory
@@ -191,47 +191,51 @@ rm(national)
 ```{r}
 #Adding Livable Wages
 
-website <- read_html("https://worldpopulationreview.com/state-rankings/livable-wage-by-state")
+website = read_html("https://worldpopulationreview.com/state-rankings/livable-wage-by-state")
 
 #reads in the livable wages and states column from the websome
-income<-website%>%html_nodes(".align-middle:nth-child(3)")%>% html_text()
-livable_income <- parse_number(income) #parses to numeric
-States <- website%>%html_nodes(".px-2+ .align-middle")%>% html_text()
+income = website %>% 
+  html_nodes(".align-middle:nth-child(3)") %>% 
+  html_text()
+livable_income = parse_number(income) #parses to numeric
+States = website %>% 
+  html_nodes(".px-2+ .align-middle") %>% 
+  html_text()
 
 #combines states and livable wages into one df
-livable_wg <- data.frame(States,livable_income)
+livable_wg = data.frame(States,livable_income)
 
 #merges the states and the data frame that we created with the majors
-merged_livable <- merge(full_df, livable_wg, by = 'States')
+merged_livable = merge(full_df, livable_wg, by = 'States')
 ```
 
 ```{r}
 #subset with only the median incomes
-subset_data <- merged_livable[3:16]
+subset_data = merged_livable[3:16]
 
 #subtracts the median incomes by the livable wages
-all_majors <- subset_data - livable_income
+all_majors = subset_data - livable_income
 
 #binds gender and states back onto the df with the majors income
-all_majors_state <- cbind("States" = merged_livable$States,"Gender" = 
+all_majors_state = cbind("States" = merged_livable$States,"Gender" = 
                             merged_livable$Gender, all_majors)
 
 #pivots the data so that it can be used to create a visualization
-long_data <- pivot_longer(all_majors_state, 
+long_data = pivot_longer(all_majors_state, 
                           cols = c("Computers, Mathematics, and Statistics",              
-"Biological, Agricultural, and Environmental Sciences",
-"Physical and Related Sciences",                       
-"Psychology",                                          
-"Social Sciences",                                     
-"Engineering",                                         
-"Science and Engineering Related Fields",              
-"Business",                                            
-"Education",                                           
-"Literature and Languages",                            
-"Liberal Arts and History",                            
-"Visual and Performing Arts",                          
-"Communications",                                      
-"Other" ), 
+                                   "Biological, Agricultural, and Environmental Sciences",
+                                   "Physical and Related Sciences",                       
+                                   "Psychology",                                          
+                                   "Social Sciences",                                     
+                                   "Engineering",                                         
+                                   "Science and Engineering Related Fields",              
+                                   "Business",                                            
+                                   "Education",                                           
+                                   "Literature and Languages",                            
+                                   "Liberal Arts and History",                            
+                                   "Visual and Performing Arts",                          
+                                   "Communications",                                      
+                                   "Other" ), 
                           names_to = "Major", 
                           values_to = "Income_Difference")
 
@@ -243,7 +247,7 @@ rm(income,livable_income, States, livable_wg, merged_livable,
 # Shiny UI
 ```{r}
 
-ui <- fluidPage(
+ui = fluidPage(
   #creates a theme
     theme = shinytheme("superhero"),
     #page title
@@ -277,17 +281,35 @@ ui <- fluidPage(
                 )
             )
         ),
-        tabPanel("Drug Satisfaction & Effectiveness Ratings")
+        tabPanel("Median Income Gap By Major and State", # 2nd graph panel
+                 titlePanel("Gender Wage Gap by Major in Selected States"),
+                 sidebarLayout(
+                   sidebarPanel(
+                     selectizeInput( # Muti-select up to but no more than 3 states
+                     inputId = "state_selection",
+                     label = "Select up to 3 states:",
+                     choices = setdiff(unique(gap$States), "National"), # Ensures National is always selected
+                     selected = c(),
+                     multiple = TRUE, # allows multi select
+                     options = list(maxItems = 3) # Caps at 3 states
+                  ),
+                     helpText("'National' is always included in the chart.")
+                   ),
+                   mainPanel(
+                     plotOutput("wage_gap_plot", height = "500px", width = "100%") # controls graph size automatically
+                   )
+                 ))
+        
     )
 )
 ```
 
 # Shiny Server
 ```{r}
-server <- function(input, output, session) {
+server = function(input, output, session) {
   
     #reactive data based on user inputs
-    cleaned_data <- reactive({
+    cleaned_data = reactive({
         #requires gender, majors, and state to exist
         req(input$gender, input$majors, input$state)
       
@@ -299,7 +321,7 @@ server <- function(input, output, session) {
     })
 
     #render the plot based on filtered data
-    output$bargraph <- renderPlot({
+    output$bargraph = renderPlot({
         req(cleaned_data())  #ensure data is available
         
         #creates a graph using cleaned_data() and defines x and y axes
@@ -320,6 +342,69 @@ server <- function(input, output, session) {
             theme_minimal() + #adds a theme
             theme(plot.title = element_text(hjust = 0.5)) #puts title in the middle
     })
+    
+    
+    
+    # Graph 2
+    output$wage_gap_plot = renderPlot({
+    # Ensure a maximum of 3 user-selected states
+    selected_states = unique(c(input$state_selection[1:3], "National"))
+
+    # Calculate max absolute wage gap for y-axis limit
+    wage_gap_values = as.numeric(as.matrix(gap[gap$States %in% selected_states, -1]))
+    max_abs = max(abs(wage_gap_values), na.rm = TRUE)
+
+    # Reshape the dataset
+    gap_long = gap %>%
+      filter(States %in% selected_states) %>%
+      pivot_longer(cols = -States, names_to = "Major", values_to = "WageGap")
+
+    gap_long$States = factor(gap_long$States, levels = selected_states)
+
+    # Assign aesthetics
+    state_levels = unique(gap_long$States)
+    state_colors = setNames(scales::hue_pal()(length(state_levels)), state_levels)
+    state_shapes = setNames(rep(21, length(state_levels)), state_levels)
+    state_sizes = setNames(rep(5, length(state_levels)), state_levels)
+    state_alphas = setNames(rep(0.35, length(state_levels)), state_levels)
+
+    state_colors["National"] = "black"
+    state_shapes["National"] = 22
+    state_sizes["National"] = 2
+    state_alphas["National"] = 1
+
+    # Add to dataframe
+    gap_long$point_size = state_sizes[gap_long$States]
+    gap_long$point_alpha = state_alphas[gap_long$States]
+
+    # Plot
+    ggplot(gap_long, aes(x = reorder(Major, WageGap), y = WageGap)) +
+      geom_segment(aes(xend = Major, y = 0, yend = WageGap), color = "gray60", linewidth = 0.5) +
+      geom_point(aes(fill = States, shape = States, size = point_size, alpha = point_alpha), color = "black") +
+      scale_size_identity() +
+      scale_alpha_identity() +
+      scale_fill_manual(name = "States", values = state_colors) +
+      scale_shape_manual(name = "States", values = state_shapes) +
+      guides(size = "none", alpha = "none") +
+      scale_y_continuous(labels = percent_format(scale = 100), limits = c(-max_abs, max_abs)) +
+      coord_flip() +
+      theme_minimal() +
+      theme(
+        axis.text.y = element_text(size = 8),
+        axis.text.x = element_text(size = 12),
+        legend.title = element_text(size = 12, hjust = 0.8),
+        legend.text = element_text(size = 10),
+        panel.grid.major = element_line(color = "gray70", linewidth = 0.1),
+        panel.grid.minor = element_line(color = "gray70", linewidth = 0.05),
+        panel.background = element_rect(fill = "white")
+      ) +
+      labs(
+        title = "Gender Wage Gap by Major in Selected States",
+        x = "Major",
+        y = "Percent Wage Difference (Male - Female)",
+        fill = "States"
+      )
+  })
 }
 ```
 
