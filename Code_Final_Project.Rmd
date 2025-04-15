@@ -332,7 +332,7 @@ server = function(input, output, session) {
                      fill = ifelse(cleaned_data()$Income_Difference < 0, "darkred", "darkgreen")) +
             #changes x and y axes and the title
             xlab("Majors") +
-            ylab("Difference Between Major's Median Salary and Livable Wage") +
+            ylab("Major's Median Salary - Livable Wage") +
             labs(title = "How Much More/Less Each Major is Recieving than Livable Wage") +
             #changes the scale to match the min and max income differences
             #makes the max/min 0 if it doesn't include it
