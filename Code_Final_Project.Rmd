@@ -372,15 +372,23 @@ server = function(input, output, session) {
                      fill = ifelse(cleaned_data()$Income_Difference < 0, "darkred", "darkgreen")) +
             #changes x and y axes and the title
             xlab("Majors") +
-            ylab("Difference Between Major's Median Salary and Livable Wage") +
-            labs(title = "How Much More/Less Each Major is Recieving than Livable Wage") +
+            ylab("Major's Median Salary - Livable Wage") +
+            labs(title = "How Much More/Less Each Major is Recieving than Livable Wage",
+                 caption = 
+                 "This graph shows how different each major's income is from the
+                 livable wage of a particular state. This was visualizes if each
+                 major can live confortably given the wage that they are 
+                 recieving.The data about each major's income was taken from the
+                 United States Census Bureau where as the data about the livable
+                 wages per state come from the World Population Review.") +
             #changes the scale to match the min and max income differences
             #makes the max/min 0 if it doesn't include it
             scale_y_continuous(breaks = seq(min(cleaned_data()$Income_Difference), max(cleaned_data()$Income_Difference), by = 10000),
                                limits = c(if_else(min(cleaned_data()$Income_Difference) <0, min(cleaned_data()$Income_Difference)-1000, 0), if_else(max(cleaned_data()$Income_Difference) >0, max(cleaned_data()$Income_Difference)+1000, 0))) +
             coord_flip() +             #flips it to have sidways bar plot
             theme_minimal() + #adds a theme
-            theme(plot.title = element_text(hjust = 0.5)) #puts title in the middle
+            theme(plot.title = element_text(hjust = 0.5),
+                  plot.caption = element_text(hjust = 1)) #puts title in the middle
     })
     
     
