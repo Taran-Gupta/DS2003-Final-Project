@@ -305,9 +305,8 @@ ui = fluidPage(
                          This graph shows how different each major's income is from the <br>
                          livable wage of a particular state. This was visualizes if each <br>
                          major can live confortably given the wage that they are <br>
-                         recieving.The data about each major's income was taken from the <br>
-                         United States Census Bureau where as the data about the livable <br>
-                         wages per state come from the World Population Review.</i>
+                         recieving.<br><i>Source: United States Census Bureau and<br>
+                         World Population Review</i>
                         </div>")
                 )
             )
