@@ -271,7 +271,7 @@ rm(income,livable_income, States, livable_wg, merged_livable,
 
 ui = fluidPage(
   #creates a theme
-    theme = shinytheme("superhero"),
+    theme = shinytheme("cosmo"),
     #page title
     navbarPage("Median Income Examinations by Major and Gender",
         #tab title
@@ -299,7 +299,16 @@ ui = fluidPage(
                 ),
                 mainPanel(
                   #tells shiny to output the plot bargraph
-                  plotOutput("bargraph", width = "100%", height = "500px")
+                  plotOutput("bargraph", width = "100%", height = "500px"),
+                  
+                  HTML("<div style='text-align: left; font-size: 12px; line-height: 1.4;'>
+                         This graph shows how different each major's income is from the <br>
+                         livable wage of a particular state. This was visualizes if each <br>
+                         major can live confortably given the wage that they are <br>
+                         recieving.The data about each major's income was taken from the <br>
+                         United States Census Bureau where as the data about the livable <br>
+                         wages per state come from the World Population Review.</i>
+                        </div>")
                 )
             )
         ),
@@ -336,10 +345,17 @@ ui = fluidPage(
                     )
                   ),
                   mainPanel(
-                    plotlyOutput("wage_gap_plot", height = "600px", width = "100%") # controls graph size automatically
-                  )
+                    plotlyOutput("wage_gap_plot", height = "600px", width = "100%"), # controls graph size automatically
+
+                    HTML("<div style='text-align: left; font-size: 12px; line-height: 1.4;'>
+                          This chart shows the wage gap between genders across various states and majors.<br>
+                          Females tend to earn less than their male counterparts in nearly every state and major,<br>
+                          highlighting a broader trend of gender inequity in the U.S.<br>
+                          <i>Source: United States Census Bureau.</i>
+                        </div>")
                 )
         )
+      )
     )
 )
 ```
@@ -373,14 +389,7 @@ server = function(input, output, session) {
             #changes x and y axes and the title
             xlab("Majors") +
             ylab("Major's Median Salary - Livable Wage") +
-            labs(title = "How Much More/Less Each Major is Recieving than Livable Wage",
-                 caption = 
-                 "This graph shows how different each major's income is from the
-                 livable wage of a particular state. This was visualizes if each
-                 major can live confortably given the wage that they are 
-                 recieving.The data about each major's income was taken from the
-                 United States Census Bureau where as the data about the livable
-                 wages per state come from the World Population Review.") +
+            labs(title = "How Much More/Less Each Major is Recieving than Livable Wage") +
             #changes the scale to match the min and max income differences
             #makes the max/min 0 if it doesn't include it
             scale_y_continuous(breaks = seq(min(cleaned_data()$Income_Difference), max(cleaned_data()$Income_Difference), by = 10000),
@@ -476,11 +485,6 @@ server = function(input, output, session) {
       ) +
       labs(
         title = "Gender Wage Gap by Major in Selected States",
-        caption = 
-          paste("This chart shows the wage gap between genders across various states and majors.",
-        "Females tend to earn less than their male counterparts in nearly every state and major,",
-        "highlighting a broader trend of gender inequity in the U.S.",
-        "Source: United States Census Bureau.", sep = "\n"),
         x = "Major",
         y = "Percent Wage Difference (Male - Female)",
         fill = "States"
