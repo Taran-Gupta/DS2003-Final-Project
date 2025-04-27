@@ -1,9 +1,4 @@
----
-title: "Code_Final_Project"
-output: html_document
----
 # Data Import
-```{r}
 # import necessary libraries
 library(tidyverse)
 library(shiny)
@@ -12,21 +7,15 @@ library(rvest)
 library(shinythemes)
 library(ggplot2)
 library(scales)
+library(rsconnect)
 
 # import base data set
 earnings = read.csv('Median Earnings.csv')
 
-head(earnings,9)
-```
+earnings
 
 # Data Cleaning
 
-Things to clean:
-1. Change Column Names
-2. Typecast numbers to int
-3. Decide if margin of errors want to be kept (might need to make it another column if so) + condense dataframe
-
-```{r}
 df = earnings %>% 
   mutate(X = lag(X, n = 1, default = NA))
 
@@ -99,14 +88,13 @@ all_gender['Gender'] = rep('Everyone', nrow(females))
 
 #binds the rows
 full_df = rbind(females, males, all_gender)
-full_df = na.omit(full_df) #gets rid of the two rows of nas
+na.omit(full_df) #gets rid of the two rows of nas
 
 
 #could also merge on state or cbind
 merged_df = merge(females, males, by = 'States') #and you can merge more
-```
 
-```{r}
+
 # removes unneeded data frames and variables to free up computer memory
 rm(earnings)
 rm(df)
@@ -146,19 +134,10 @@ rownames(females) = NULL
 rownames(males) = NULL
 rownames(full_df) = NULL
 rownames(merged_df) = NULL
-```
+
 
 # Question 1: What is the Gender Gap By Major Across The Country?
 
-diverging bar chart: https://r-charts.com/part-whole/diverging-bar-chart-ggplot2/
-Up is increase male, down is increase female. Likely won't be much down but that's the point
-show equal y-axis on both sides to exacerbate the difference
-group my major. Each bar represents a different major. Leave out Multidisciplinary studies due to NAs
-Allow grouped bars (dodge) to show up to 3(?) different states for comparison
-color by state?
-scale_fill_gradient by amount?
-
-```{r}
 # Creating Data frame that shows income difference by state and by major, as well as averaged overall
 # done by percent difference
 gap = add_column(males[1],(males[3:16] - females[3:16])/males[3:16])
@@ -167,28 +146,28 @@ gap = add_column(males[1],(males[3:16] - females[3:16])/males[3:16])
 national_mean = colMeans(gap[2:15])
 national = data.frame(State = "National", t(national_mean))
 colnames(national) = c("States",
-                        "Computers, Mathematics, and Statistics",              
-                        "Biological, Agricultural, and Environmental Sciences",
-                        "Physical and Related Sciences",                       
-                        "Psychology",                                          
-                        "Social Sciences",                                     
-                        "Engineering",                                         
-                        "Science and Engineering Related Fields",              
-                        "Business",                                            
-                        "Education",                                           
-                        "Literature and Languages",                            
-                        "Liberal Arts and History",                            
-                        "Visual and Performing Arts",                          
-                        "Communications",                                      
-                        "Other")
+                       "Computers, Mathematics, and Statistics",              
+                       "Biological, Agricultural, and Environmental Sciences",
+                       "Physical and Related Sciences",                       
+                       "Psychology",                                          
+                       "Social Sciences",                                     
+                       "Engineering",                                         
+                       "Science and Engineering Related Fields",              
+                       "Business",                                            
+                       "Education",                                           
+                       "Literature and Languages",                            
+                       "Liberal Arts and History",                            
+                       "Visual and Performing Arts",                          
+                       "Communications",                                      
+                       "Other")
 gap = add_row(gap, !!!national[1, ])
 
 # remove intermediate steps
 rm(national_mean)
 rm(national)
-```
 
-```{r}
+
+
 # creates list of stem majors
 stem_majors = c(
   "Computers, Mathematics, and Statistics",
@@ -208,10 +187,10 @@ arts_majors = c(
   "Visual and Performing Arts",
   "Communications"
 )
-```
+
 
 # Question 3:
-```{r}
+
 #Adding Livable Wages
 
 website = read_html("https://worldpopulationreview.com/state-rankings/livable-wage-by-state")
@@ -230,9 +209,9 @@ livable_wg = data.frame(States,livable_income)
 
 #merges the states and the data frame that we created with the majors
 merged_livable = merge(full_df, livable_wg, by = 'States')
-```
 
-```{r}
+
+
 #subset with only the median incomes
 subset_data = merged_livable[3:16]
 
@@ -241,184 +220,184 @@ all_majors = subset_data - livable_income
 
 #binds gender and states back onto the df with the majors income
 all_majors_state = cbind("States" = merged_livable$States,"Gender" = 
-                            merged_livable$Gender, all_majors)
+                           merged_livable$Gender, all_majors)
 
 #pivots the data so that it can be used to create a visualization
 long_data = pivot_longer(all_majors_state, 
-                          cols = c("Computers, Mathematics, and Statistics",              
-                                   "Biological, Agricultural, and Environmental Sciences",
-                                   "Physical and Related Sciences",                       
-                                   "Psychology",                                          
-                                   "Social Sciences",                                     
-                                   "Engineering",                                         
-                                   "Science and Engineering Related Fields",              
-                                   "Business",                                            
-                                   "Education",                                           
-                                   "Literature and Languages",                            
-                                   "Liberal Arts and History",                            
-                                   "Visual and Performing Arts",                          
-                                   "Communications",                                      
-                                   "Other" ), 
-                          names_to = "Major", 
-                          values_to = "Income_Difference")
+                         cols = c("Computers, Mathematics, and Statistics",              
+                                  "Biological, Agricultural, and Environmental Sciences",
+                                  "Physical and Related Sciences",                       
+                                  "Psychology",                                          
+                                  "Social Sciences",                                     
+                                  "Engineering",                                         
+                                  "Science and Engineering Related Fields",              
+                                  "Business",                                            
+                                  "Education",                                           
+                                  "Literature and Languages",                            
+                                  "Liberal Arts and History",                            
+                                  "Visual and Performing Arts",                          
+                                  "Communications",                                      
+                                  "Other" ), 
+                         names_to = "Major", 
+                         values_to = "Income_Difference")
 
 rm(income,livable_income, States, livable_wg, merged_livable,
    subset_data, all_majors, all_majors_state)
 
-```
+
 
 # Shiny UI
-```{r}
+
 
 ui = fluidPage(
   #creates a theme
-    theme = shinytheme("cosmo"),
-    #page title
-    navbarPage("Median Income Examinations by Major and Gender",
-        #tab title
-        tabPanel("Median Income Compared to Livable Wage by State",
-            fluidRow( 
-                sidebarPanel(
-                    radioButtons(
-                        inputId = "gender", #access the widget by "gender"
-                        label = "Filter by Gender: ", #title of widget
-                        choices = c("Female", "Male", "Everyone"), #choices
-                        selected = "Everyone" #Everyone auto selected
-                    ),
-                    checkboxGroupInput(
-                        "majors", #access widget by "majors"
-                        label = "Filter by Major", #title of widget
-                        choices = unique(long_data$Major), #choices
-                        selected = unique(long_data$Major) #selects all majors auto
-                    ),
-                    selectInput(
-                        inputId = "state", #access widget by "state"
-                        label = "Filter by State: ", #title of widget
-                        choices = unique(long_data$States), #choices
-                        selected = 'Alabama' #Selects Alabama auto
-                    )
-                ),
-                mainPanel(
-                  #tells shiny to output the plot bargraph
-                  plotOutput("bargraph", width = "100%", height = "500px"),
-                  
-                  HTML("<div style='text-align: left; font-size: 12px; line-height: 1.4;'>
+  theme = shinytheme("cosmo"),
+  #page title
+  navbarPage("Median Income Examinations by Major and Gender",
+             #tab title
+             tabPanel("Median Income Compared to Livable Wage by State",
+                      fluidRow( 
+                        sidebarPanel(
+                          radioButtons(
+                            inputId = "gender", #access the widget by "gender"
+                            label = "Filter by Gender: ", #title of widget
+                            choices = c("Female", "Male", "Everyone"), #choices
+                            selected = "Everyone" #Everyone auto selected
+                          ),
+                          checkboxGroupInput(
+                            "majors", #access widget by "majors"
+                            label = "Filter by Major", #title of widget
+                            choices = unique(long_data$Major), #choices
+                            selected = unique(long_data$Major) #selects all majors auto
+                          ),
+                          selectInput(
+                            inputId = "state", #access widget by "state"
+                            label = "Filter by State: ", #title of widget
+                            choices = unique(long_data$States), #choices
+                            selected = 'Alabama' #Selects Alabama auto
+                          )
+                        ),
+                        mainPanel(
+                          #tells shiny to output the plot bargraph
+                          plotOutput("bargraph", width = "100%", height = "500px"),
+                          
+                          HTML("<div style='text-align: left; font-size: 12px; line-height: 1.4;'>
                          This graph shows how different each major's income is from the <br>
                          livable wage of a particular state. This was visualizes if each <br>
                          major can live confortably given the wage that they are <br>
                          recieving.<br><i>Source: United States Census Bureau and<br>
                          World Population Review</i>
                         </div>")
-                )
-            )
-        ),
-        tabPanel("Median Income Gap By Major and State", # 2nd graph panel
-                titlePanel("Gender Wage Gap by Major in Selected States"),
-               
-                sidebarLayout(
-                  sidebarPanel(
-                    selectizeInput( # Muti-select up to but no more than 3 states
-                      inputId = "state_selection",
-                      label = "Select up to 3 states:",
-                      choices = setdiff(unique(gap$States), "National"), # Ensures National is always selected
-                      selected = c(),
-                      multiple = TRUE, # allows multi select
-                      options = list(maxItems = 3) # Caps at 3 states
-                    ),
-                    
-                    helpText("'National' is always included in the chart."),
-                    
-                    radioButtons( # Allows selection by major category
-                      inputId = "major_category",
-                      label = "Select Major Category:",
-                      choices = c("All", "STEM", "Arts"),
-                      selected = "All"
-                    ),
-                    
-                    sliderInput( # creates slider that omits outside of range of wage gap selected
-                      inputId = "gap_range",
-                      label = "Filter by Wage Gap Range (%):",
-                      min = -100,
-                      max = 100,
-                      value = c(-100, 100),
-                      step = 5 # increments of 5 %
-                    )
-                  ),
-                  mainPanel(
-                    plotlyOutput("wage_gap_plot", height = "600px", width = "100%"), # controls graph size automatically
-
-                    HTML("<div style='text-align: left; font-size: 12px; line-height: 1.4;'>
+                        )
+                      )
+             ),
+             tabPanel("Median Income Gap By Major and State", # 2nd graph panel
+                      titlePanel("Gender Wage Gap by Major in Selected States"),
+                      
+                      sidebarLayout(
+                        sidebarPanel(
+                          selectizeInput( # Muti-select up to but no more than 3 states
+                            inputId = "state_selection",
+                            label = "Select up to 3 states:",
+                            choices = setdiff(unique(gap$States), "National"), # Ensures National is always selected
+                            selected = c(),
+                            multiple = TRUE, # allows multi select
+                            options = list(maxItems = 3) # Caps at 3 states
+                          ),
+                          
+                          helpText("'National' is always included in the chart."),
+                          
+                          radioButtons( # Allows selection by major category
+                            inputId = "major_category",
+                            label = "Select Major Category:",
+                            choices = c("All", "STEM", "Arts"),
+                            selected = "All"
+                          ),
+                          
+                          sliderInput( # creates slider that omits outside of range of wage gap selected
+                            inputId = "gap_range",
+                            label = "Filter by Wage Gap Range (%):",
+                            min = -100,
+                            max = 100,
+                            value = c(-100, 100),
+                            step = 5 # increments of 5 %
+                          )
+                        ),
+                        mainPanel(
+                          plotlyOutput("wage_gap_plot", height = "600px", width = "100%"), # controls graph size automatically
+                          
+                          HTML("<div style='text-align: left; font-size: 12px; line-height: 1.4;'>
                           This chart shows the wage gap between genders across various states and majors.<br>
                           Females tend to earn less than their male counterparts in nearly every state and major,<br>
                           highlighting a broader trend of gender inequity in the U.S.<br>
                           <i>Source: United States Census Bureau.</i>
                         </div>")
-                )
-        )
-      )
-    )
+                        )
+                      )
+             )
+  )
 )
-```
+
 
 # Shiny Server
-```{r}
+
 server = function(input, output, session) {
   
-    #reactive data based on user inputs
-    cleaned_data = reactive({
-        #requires gender, majors, and state to exist
-        req(input$gender, input$majors, input$state)
+  #reactive data based on user inputs
+  cleaned_data = reactive({
+    #requires gender, majors, and state to exist
+    req(input$gender, input$majors, input$state)
+    
+    #filters the data according to the inputs
+    long_data %>%
+      filter(Major %in% input$majors, 
+             States == input$state, 
+             Gender == input$gender)
+  })
+  
+  #render the plot based on filtered data
+  output$bargraph = renderPlot({
+    req(cleaned_data())  #ensure data is available
+    
+    #creates a graph using cleaned_data() and defines x and y axes
+    ggplot(cleaned_data(), aes(x = reorder(Major, Income_Difference), y = Income_Difference)) +
       
-        #filters the data according to the inputs
-        long_data %>%
-            filter(Major %in% input$majors, 
-                   States == input$state, 
-                   Gender == input$gender)
-    })
-
-    #render the plot based on filtered data
-    output$bargraph = renderPlot({
-        req(cleaned_data())  #ensure data is available
-        
-        #creates a graph using cleaned_data() and defines x and y axes
-        ggplot(cleaned_data(), aes(x = reorder(Major, Income_Difference), y = Income_Difference)) +
-            
-            #creates a bar graph that changes the fill color according to the number
-            geom_bar(stat = "identity", show.legend = FALSE, color = "white", 
-                     fill = ifelse(cleaned_data()$Income_Difference < 0, "darkred", "darkgreen")) +
-            #changes x and y axes and the title
-            xlab("Majors") +
-            ylab("Major's Median Salary - Livable Wage") +
-            labs(title = "How Much More/Less Each Major is Recieving than Livable Wage") +
-            #changes the scale to match the min and max income differences
-            #makes the max/min 0 if it doesn't include it
-            scale_y_continuous(breaks = seq(min(cleaned_data()$Income_Difference), max(cleaned_data()$Income_Difference), by = 10000),
-                               limits = c(if_else(min(cleaned_data()$Income_Difference) <0, min(cleaned_data()$Income_Difference)-1000, 0), if_else(max(cleaned_data()$Income_Difference) >0, max(cleaned_data()$Income_Difference)+1000, 0))) +
-            coord_flip() +             #flips it to have sidways bar plot
-            theme_minimal() + #adds a theme
-            theme(plot.title = element_text(hjust = 0.5),
-                  plot.caption = element_text(hjust = 1)) #puts title in the middle
-    })
-    
-    
-    
-    # Graph 2
-    output$wage_gap_plot = renderPlotly({
+      #creates a bar graph that changes the fill color according to the number
+      geom_bar(stat = "identity", show.legend = FALSE, color = "white", 
+               fill = ifelse(cleaned_data()$Income_Difference < 0, "darkred", "darkgreen")) +
+      #changes x and y axes and the title
+      xlab("Majors") +
+      ylab("Major's Median Salary - Livable Wage") +
+      labs(title = "How Much More/Less Each Major is Recieving than Livable Wage") +
+      #changes the scale to match the min and max income differences
+      #makes the max/min 0 if it doesn't include it
+      scale_y_continuous(breaks = seq(min(cleaned_data()$Income_Difference), max(cleaned_data()$Income_Difference), by = 10000),
+                         limits = c(if_else(min(cleaned_data()$Income_Difference) <0, min(cleaned_data()$Income_Difference)-1000, 0), if_else(max(cleaned_data()$Income_Difference) >0, max(cleaned_data()$Income_Difference)+1000, 0))) +
+      coord_flip() +             #flips it to have sidways bar plot
+      theme_minimal() + #adds a theme
+      theme(plot.title = element_text(hjust = 0.5),
+            plot.caption = element_text(hjust = 1)) #puts title in the middle
+  })
+  
+  
+  
+  # Graph 2
+  output$wage_gap_plot = renderPlotly({
     # Ensure a maximum of 3 user-selected states
     selected_states = unique(c(input$state_selection[1:3], "National"))
-
+    
     # Calculate max absolute wage gap for y-axis limit
     wage_gap_values = as.numeric(as.matrix(gap[gap$States %in% selected_states, -1]))
     max_abs = max(abs(wage_gap_values), na.rm = TRUE)
-
+    
     # Reshape the dataset
     gap_long = gap %>%
       filter(States %in% selected_states) %>%
       pivot_longer(cols = -States, names_to = "Major", values_to = "WageGap") %>%
       filter(
         input$major_category == "All" |
-        (input$major_category == "STEM" & Major %in% stem_majors) |
-        (input$major_category == "Arts" & Major %in% arts_majors)
+          (input$major_category == "STEM" & Major %in% stem_majors) |
+          (input$major_category == "Arts" & Major %in% arts_majors)
       ) %>%
       filter(
         WageGap * 100 >= input$gap_range[1],
@@ -456,11 +435,11 @@ server = function(input, output, session) {
       "Major: ", gap_long$Major, "\n",
       "Wage Gap: ", scales::percent(gap_long$WageGap, accuracy = 0.1)
     )
-
+    
     # Plot
     p = ggplot(gap_long, aes(x = reorder(Major, WageGap), y = WageGap)) +
       geom_segment(aes(x = reorder(Major, WageGap), xend = reorder(Major, WageGap), y = 0, yend = WageGap),
-        color = "gray60", linewidth = 0.5, inherit.aes = FALSE) +
+                   color = "gray60", linewidth = 0.5, inherit.aes = FALSE) +
       geom_point(aes(fill = States, shape = States, size = point_size, alpha = point_alpha, text = tooltip_text),
                  color = "black") +
       scale_size_identity() +
@@ -495,9 +474,8 @@ server = function(input, output, session) {
       style(hoverinfo = "skip", traces = 0)  # remove hover from geom_segment
   })
 }
-```
+
 
 # Shiny App
-```{r}
+
 shinyApp(ui, server)
-```
