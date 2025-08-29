@@ -485,7 +485,6 @@ server = function(input, output, session) {
         panel.border = element_rect(color = "black", fill = NA, linewidth = 0.5)
       ) +
       labs(
-        title = "Gender Wage Gap by Major in Selected States",
         x = "Major",
         y = "Percent Wage Difference (Male - Female)",
         fill = "States"
